@@ -1,73 +1,51 @@
-var username = document.querySelector("#username");
-var password = document.querySelector("#password");
-var email = document.querySelector("#email");
-var passconf = document.querySelector("#passconf");
-var form = document.querySelector("form");
+let username = document.getElementById("username");
+let password = document.getElementById("password");
+let email = document.getElementById("email");
+let passconf = document.getElementById("passconf");
+let site = document.getElementById("site");
+let phone = document.getElementById("phone");
+let form = document.querySelector("form");
 
 form.addEventListener('submit', function(e) {
     e.preventDefault();
-    
-    if(username.parentElement.childElementCount===3)
-    {
-        username.parentElement.removeChild(username.parentElement.lastChild);
-        checkinput();
-    }
-    else
-        checkinput();
-           
-    if(password.parentElement.childElementCount===3)
-    {
-        if(passconf.parentElement.childElementCount===3)
-            passconf.parentElement.removeChild(passconf.parentElement.lastChild);
-        password.parentElement.removeChild(password.parentElement.lastChild);
-        checkpass();
-    }
-    else
-        checkpass();
-        
-    if(email.parentElement.childElementCount===3)
-    {
-        email.parentElement.removeChild(email.parentElement.lastChild);
-        checkmail();
-    }    
-    else
-        checkmail();
-
+    removeAllErrors();
+    checkinput();
+    checkPhone();
+    checkmail();
+    checkSite();
+    checkpass();  
 });
 
 function checkinput()
 {
-    var uninput = username.value;
+    let uninput = username.value;
     if(uninput.length < 3)
-        usernameerror("Username must be atleast 3 characters long")
+        showError(username, "Username should be atleast 3 characters long");
     else
         username.className = "form-control accepted"
 }
 
 function checkmail()
 {
-    var mailinp = email.value;
+    let mailinp = email.value;
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if(mailinp.length === 0)
-        mailerror("This field can't be empty");
+        showError(email, "Please enter email address");
     else if(!re.test(mailinp.trim()))
-        mailerror("Not a valid Email Address");
+        showError(email, "Not a vaild email address");
     else
         email.className = "form-control accepted"
 }
 
-function checkpass()
-{
-    var passinp = password.value;
-    var passconfinp = passconf.value;
+function checkpass() {
+    let passinp = password.value;
+    let passconfinp = passconf.value;
     if(passinp.length < 6)
-        passerror("Password must be atleast 6 characters long")
-    else if(passinp.length === 0 && passconfinp.length < 6)
-        pass2error("Password must be atleast 6 characters long")
+        showError(password, "Password must be atleast 6 characters long");
     else if(passinp !== passconfinp)
     {
-        pass2error("Passwords do not match");
-        passerror("Passwords do not match");
+        showError(password, "Passwords do not match");
+        showError(passconf, "Passwords do not match");
     }
     else
     {
@@ -76,38 +54,40 @@ function checkpass()
     }
 }
 
-function usernameerror(message)
-{
-    var errmsg = document.createElement("p");
-    username.classList.add("rejected");
+function checkSite() {
+    let siteinp = site.value.trim();    
+    const re = /(https?:\/\/(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9])(:?\d*)\/?([a-z_\/0-9\-#.]*)\??([a-z_\/0-9\-#=&]*)/g;
+    if(siteinp.length===0)
+        showError(site, "Please enter your website");
+    else if(!re.test(siteinp))  
+        showError(site, "Please enter a valid URL");
+    else 
+        site.className = 'form-control accepted';
+}
+
+function checkPhone() {
+    let phoneinp = phone.value.trim();    
+    const re = /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/;
+    if(phoneinp.length===0)
+        showError(phone, "Please enter your phone number");
+    else if(!re.test(phoneinp))  
+        showError(phone, "Please provide the phone number in the shown format");
+    else 
+        phone.className = 'form-control accepted';
+}
+
+function showError(element, message) {
+    let errmsg = document.createElement("p");
+    element.classList.add("rejected");
     errmsg.innerHTML = message;
     errmsg.classList.add("text-danger")
-    username.parentElement.appendChild(errmsg);
+    element.parentElement.appendChild(errmsg);
 }
 
-function passerror(message)
-{
-    var errmsg = document.createElement("p");
-    password.classList.add("rejected")
-    errmsg.innerHTML = message;
-    errmsg.classList.add("text-danger");
-    password.parentElement.appendChild(errmsg);
+function removeAllErrors() {
+    document.querySelectorAll('p').forEach(el => el.remove());
+    document.querySelectorAll('.rejected').forEach(el => el.classList.remove('rejected'));
 }
 
-function pass2error(message)
-{
-    var errmsg = document.createElement("p");
-    passconf.classList.add("rejected")
-    errmsg.innerHTML = message;
-    errmsg.classList.add("text-danger");
-    passconf.parentElement.appendChild(errmsg);
-}
 
-function mailerror(message)
-{
-    var errmsg = document.createElement("p");
-    email.classList.add("rejected");
-    errmsg.innerHTML= message;
-    errmsg.classList.add("text-danger");
-    email.parentElement.appendChild(errmsg);
-}
+
